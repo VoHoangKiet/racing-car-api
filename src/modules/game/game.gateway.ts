@@ -13,7 +13,6 @@ interface ClientWithMeta extends WebSocket {
 @Injectable()
 export class GameGateway implements OnModuleInit, OnModuleDestroy {
   private wss: Server;
-  private readonly PORT = 6002;
 
   constructor(
     private readonly tokenService: TokenService,
@@ -22,9 +21,13 @@ export class GameGateway implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit() {
-    this.wss = new Server({ port: this.PORT });
+    // Không khởi tạo WebSocket server ở đây nữa
+    // Việc khởi tạo sẽ được thực hiện ở main.ts với HTTP server
+  }
+
+  initWithServer(server: any) {
+    this.wss = new Server({ server });
     this.setupWebSocketHandlers();
-    console.log(`🟢 WebSocket server started on ws://localhost:${this.PORT}`);
   }
 
   onModuleDestroy() {
