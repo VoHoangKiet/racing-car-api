@@ -1,15 +1,15 @@
 import { Seeder } from 'nestjs-seeder';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { UserEntity } from '@app/database/entities/user.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User, UserDocument } from '@app/database/schemas/user.schema';
 import { StatusEnum } from '@Constant/enums';
 
 @Injectable()
 export class UserSeeder implements Seeder {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>
   ) {}
 
   async seed(): Promise<void> {
@@ -50,14 +50,12 @@ export class UserSeeder implements Seeder {
     ];
 
     for (const userData of users) {
-      const existingUser = await this.userRepository.findOne({
-        where: { email: userData.email },
+      const existingUser = await this.userModel.findOne({
+        email: userData.email,
       });
 
       if (!existingUser) {
-        const user = this.userRepository.create(userData);
-
-        await this.userRepository.save(user);
+        await this.userModel.create(userData);
       } else {
         throw new BadRequestException(`User ${userData.name} already exists`);
       }
@@ -65,6 +63,6 @@ export class UserSeeder implements Seeder {
   }
 
   async drop(): Promise<void> {
-    await this.userRepository.delete({});
+    await this.userModel.deleteMany({});
   }
 }

@@ -1,30 +1,32 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
+import { Model } from 'mongoose';
 
 import { CredentialsDto } from './dto/credentials.dto';
 import { StatusEnum } from '@Constant/enums';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { ResponseItem } from '@app/common/dtos';
 import { TokenDto } from './dto/token.dto';
-import { UserEntity } from '@Entity/user.entity';
+import { User, UserDocument } from '@app/database/schemas/user.schema';
 import { TokenService } from './token/token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
     private readonly tokenService: TokenService
   ) {}
 
   async validateUser(credentialsDto: CredentialsDto): Promise<UserPayloadDto> {
-    const user = await this.userRepository.findOneBy({
-      email: credentialsDto.email,
-      status: StatusEnum.ACTIVE,
-      deletedBy: null,
-    });
+    const user = await this.userModel
+      .findOne({
+        email: credentialsDto.email,
+        status: StatusEnum.ACTIVE,
+        deletedAt: null,
+      })
+      .select('+password');
 
     if (!user) throw new UnauthorizedException('Tài khoản không tồn tại');
 
@@ -32,7 +34,7 @@ export class AuthService {
     if (!comparePassword) throw new UnauthorizedException('Tài khoản hoặc mật khẩu không đúng');
 
     return {
-      id: user.id,
+      id: user._id.toString(),
       email: user.email,
       name: user.name,
     };
@@ -59,7 +61,7 @@ export class AuthService {
 
   async refreshToken(token: string): Promise<ResponseItem<TokenDto>> {
     const user = await this.tokenService.validateRefreshToken(token);
-    const accessToken = this.tokenService.generateAccessToken({ sub: user.id, email: user.email });
+    const accessToken = this.tokenService.generateAccessToken({ sub: (user as any)._id.toString(), email: user.email });
 
     const data = {
       accessToken,

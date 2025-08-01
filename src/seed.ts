@@ -1,11 +1,11 @@
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import 'dotenv/config';
 import { seeder } from 'nestjs-seeder';
 
 import { DatabaseModule } from './config/database.module';
 import { UserSeeder } from './database/seed/user.seed';
-import { UserEntity } from '@app/database/entities/user.entity';
+import { User, UserSchema } from '@app/database/schemas/user.schema';
 
 seeder({
-  imports: [DatabaseModule, TypeOrmModule.forFeature([UserEntity])],
+  imports: [DatabaseModule, MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
 }).run([UserSeeder]);

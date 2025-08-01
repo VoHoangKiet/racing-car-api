@@ -9,16 +9,13 @@ import { UsersModule } from '@UsersModule/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { GameModule } from './modules/game/game.module';
 
-
 @Module({
   imports: [
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         APP_PORT: Joi.number().required(),
-        DB_MYSQL_URL: Joi.string().required(),
-        DB_MYSQL_SYNCHRONIZE: Joi.string().required(),
-        DB_MYSQL_LOGGING: Joi.string().required(),
+        MONGODB_URI: Joi.string().optional().default('mongodb://localhost:27017/racing-car'),
         JWT_ACCESS_SECRETKEY: Joi.string().required(),
         JWT_ACCESS_EXPIRES: Joi.string().required(),
         JWT_REFRESH_SECRETKEY: Joi.string().required(),
