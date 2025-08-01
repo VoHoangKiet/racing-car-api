@@ -33,7 +33,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('/docs', app, document);
 
-  const port = configService.get<number>('APP_PORT');
+  const port = configService.get<number>('PORT');
   const server = await app.listen(port || 8080);
 
   // Khởi tạo WebSocket server

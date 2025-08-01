@@ -14,7 +14,7 @@ import { GameModule } from './modules/game/game.module';
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        APP_PORT: Joi.number().required(),
+        PORT: Joi.number().required(),
         MONGODB_URI: Joi.string().optional().default('mongodb://localhost:27017/racing-car'),
         JWT_ACCESS_SECRETKEY: Joi.string().required(),
         JWT_ACCESS_EXPIRES: Joi.string().required(),
